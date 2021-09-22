@@ -13,8 +13,13 @@ module.exports = (_ => {
 		"info": {
 			"name": "Test",
 			"author": "Me",
-			"version": "0.1.0",
+			"version": "1.0.0",
 			"description": "Test plugin"
+		},
+		"changeLog": {
+			"added": {
+				"Release": "Release version"
+			}
 		}
 	};
 	
