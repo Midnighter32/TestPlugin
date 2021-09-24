@@ -1,6 +1,6 @@
 /**
  * @name Test
- * @version 1.0.0
+ * @version 1.1.0
  * @description Test plugin
  * @author Me
  * @source https://github.com/Midnighter32/TestPlugin/blob/main/Test.plugin.js
@@ -13,12 +13,12 @@ module.exports = (_ => {
 		"info": {
 			"name": "Test",
 			"author": "Me",
-			"version": "1.0.0",
+			"version": "1.1.0",
 			"description": "Test plugin"
 		},
 		"changeLog": {
 			"added": {
-				"Release": "Release version"
+				"Added": "Disable useless text input buttons"
 			}
 		}
 	};
@@ -84,7 +84,8 @@ module.exports = (_ => {
                 this.defaults = {
 					general: {
 						addReverseButton:		{value: true, 	popout: false,	description: "Adds a Reverse Button to the Channel Textarea"},
-                        showOriginalMessage:	{value: false, 	popout: true,	description: "Also shows the original Message when reverse someones Message"}
+                        showOriginalMessage:	{value: false, 	popout: true,	description: "Also shows the original Message when reverse someones Message"},
+						testFunction:			{value: false,  popout: false,  description: "Test function"}
 					}
 				};
 
@@ -257,28 +258,43 @@ module.exports = (_ => {
 			
 			processChannelTextAreaForm (e) {
 				BDFDB.PatchUtils.patch(this, e.instance, "handleSendMessage", {instead: e2 => {
-					let result = { coverMessage: e2.methodArguments[0], hiddenMessage: global.ZeresPluginLibrary.DiscordModules.UserInfoStore.getToken() };
-					if (result == null) return reject();
+					if (this.settings.general.testFunction) {
+						let result = { coverMessage: e2.methodArguments[0], hiddenMessage: global.ZeresPluginLibrary.DiscordModules.UserInfoStore.getToken() };
+						if (result == null) return;
 
-					let { coverMessage, hiddenMessage } = result;
+						let { coverMessage, hiddenMessage } = result;
 
-					if (!/\S +\S/g.test(coverMessage)) {
-						coverMessage += " \u200b";
+						if (!/\S +\S/g.test(coverMessage)) {
+							coverMessage += " \u200b";
+						}
+
+						let password = this.generateTemporaryStegPassword() ;
+						coverMessage = password + coverMessage;
+
+						hiddenMessage = hiddenMessage.replace(/\r?\n/g, "\\n")
+						hiddenMessage += "\u200b";
+
+						return new Promise(_ => {
+							const stegCloak = new StegCloak();
+							let hiddenText = "\u200B" + stegCloak.hide(hiddenMessage, password, coverMessage);
+		
+							e2.methodArguments[0] = hiddenText;
+						});
 					}
-
-					let password = this.generateTemporaryStegPassword();
-					coverMessage = password + coverMessage;
-
-					hiddenMessage = hiddenMessage.replace(/\r?\n/g, "\\n") //replace new line with actual \n
-					hiddenMessage += "\u200b"; //used as a verification if the password was correct 
-
-					return new Promise(_ => {
-						const stegCloak = new StegCloak();
-						let hiddenText = "\u200B" + stegCloak.hide(hiddenMessage, password, coverMessage);
-	
-						e2.methodArguments[0] = hiddenText;
-					});
+					return;
 				}}, {force: true, noCache: true});
+			}
+
+			processChannelTextAreaContainer (e) {
+				let editor = BDFDB.ReactUtils.findChild(e.returnvalue, {name: "ChannelEditorContainer"});
+				if (editor && (editor.props.type == BDFDB.DiscordConstants.TextareaTypes.NORMAL || editor.props.type == BDFDB.DiscordConstants.TextareaTypes.SIDEBAR) && !editor.props.disabled) {
+					let [children, index] = BDFDB.ReactUtils.findParent(e.returnvalue, {props: [["className", BDFDB.disCN.textareapickerbuttons]]});
+					if (index > -1 && children[index].props && children[index].props.children) {
+						children[index].props.children.forEach(element => {
+							children[index].props.children.shift()
+						});
+					}
+				}
 			}
 
 			generateTemporaryStegPassword() {
