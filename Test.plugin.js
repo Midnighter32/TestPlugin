@@ -1,6 +1,6 @@
 /**
  * @name Test
- * @version 1.2.0
+ * @version 1.3.0
  * @description Test plugin
  * @author Me
  * @source https://github.com/Midnighter32/TestPlugin/blob/main/Test.plugin.js
@@ -13,13 +13,13 @@ module.exports = (_ => {
 		"info": {
 			"name": "Test",
 			"author": "Me",
-			"version": "1.2.0",
+			"version": "1.3.0",
 			"description": "Test plugin"
 		},
 		"rawUrl": "https://raw.githubusercontent.com/Midnighter32/TestPlugin/main/Test.plugin.js",
 		"changeLog": {
 			"added": {
-				"Added": "Disable useless text input buttons"
+				"Added": "Test Update"
 			}
 		}
 	};
