@@ -1,6 +1,6 @@
 /**
  * @name Test
- * @version 1.1.0
+ * @version 1.2.0
  * @description Test plugin
  * @author Me
  * @source https://github.com/Midnighter32/TestPlugin/blob/main/Test.plugin.js
